@@ -158,6 +158,8 @@
     position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
     width: min(620px, calc(100vw - 32px)); padding: 22px 26px 24px; z-index: 15; text-align: center;
   }
+  #promptText .ask { color: #ff6fb1; text-shadow: 0 0 10px rgba(255, 79, 154, 0.75), 2px 2px 0 #4a0a2a; animation: askGlow 1.8s ease-in-out infinite; }
+  @keyframes askGlow { 50% { color: #ffa3cf; text-shadow: 0 0 18px rgba(255, 79, 154, 1), 2px 2px 0 #4a0a2a; } }
   #promptCard.finalIn { animation: finalCard 1.6s ease-out both; }
   @keyframes finalCard { from { opacity: 0; transform: translate(-50%, -42%); } to { opacity: 1; transform: translate(-50%, -50%); } }
   #promptCard.finalIn #finalBtns { animation: btnsIn 0.9s ease-out 1.4s both; }
@@ -541,6 +543,7 @@ const CONFIG = {
     "my love"
   ],
   finalQuestion: "Tricia, these last three months have let us explore so many of our deep cuts. But, I think we're only scratching the surface! I know I've already asked you out, but still: krill you go on a date with me and be my girlfriend?",
+  finalHighlight: "krill you go on a date with me",   // shown in a different colour inside finalQuestion
   yesLine: "You may now MPreg the Boyfriend (or at least try)",
   date: { details: "Thursday, November 19th – Tuesday, November 24th", note: "" },   // note: optional small line, "" = hidden
   wrongDefault: "nope. try again",
@@ -1624,7 +1627,14 @@ function showFinal() {
   state = "final"; qi = N_Q;
   setProgress(N_Q);
   $("promptKicker").textContent = `PROMPT ${N_Q + 1} · THE DEEPEST POINT`;
-  $("promptText").textContent = CONFIG.finalQuestion;
+  const pt = $("promptText"), fq = CONFIG.finalQuestion, hl = CONFIG.finalHighlight || "";
+  const at = hl ? fq.indexOf(hl) : -1;
+  pt.textContent = "";
+  if (at < 0) pt.textContent = fq;
+  else {
+    const em = document.createElement("span"); em.className = "ask"; em.textContent = hl;
+    pt.append(fq.slice(0, at), em, fq.slice(at + hl.length));
+  }
   resetNo();
   $("finalBtns").style.display = "flex";
   // slow, deliberate reveal: a beat of empty ocean, then the card rises in, then the buttons
